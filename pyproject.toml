@@ -1,0 +1,11 @@
+[project]
+name = "webpage2audio"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "boto3>=1.38.20",
+    "firecrawl-py>=2.7.0",
+]
