@@ -1,6 +1,9 @@
+import os
 import logging
-from src.tts import tts
-from src.get_content import Firecrawler
+from src.TextToSpeech import TextToSpeech
+from src.Firecrawler import Firecrawler
+from src.Summarization import Summarization
+from src.Prompt import Prompt
 
 # Configure logging
 logging.basicConfig(
@@ -14,14 +17,24 @@ logging.basicConfig(
 
 def main():
     url_input = input("Enter the URL of the webpage you want to scrape: ")
-    crawler = Firecrawler()
+    FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY")
+    crawler = Firecrawler(api_key=FIRECRAWL_API_KEY)
     webpage_content = crawler.scrape_webpage_content(url_input)
     if webpage_content:
         logging.info(f"Success: Webpage content fetched successfully ::: {webpage_content}")
     else:
         logging.error("Error: Failed to fetch webpage content.")
         return
-    audio_output = tts(webpage_content)
+  
+    prompt = Prompt(text=webpage_content).get_prompt()
+    summary = Summarization(text=webpage_content, modelId="amazon.nova-lite-v1:0", prompt=prompt).get_summarization()
+    if summary:
+        logging.info(f"Success: Summary generated successfully ::: {summary}")
+    else:
+        logging.error("Error: Failed to generate summary.")
+        return
+    
+    audio_output = TextToSpeech().synthesize(summary)
     if audio_output:
         logging.info("Success: Audio generated successfully.")
         with open("output.mp3", "wb") as file:
